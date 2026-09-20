@@ -18,5 +18,6 @@ _What is stopping progress? What dependencies are missing?_
 
 ## 4. Recent Decisions
 _What architectural or technical decisions were recently made that future agents must know?_
-- Cloned to `D:\MAJOR-NODES\zOTHER-PEOPLE\m3e-canvas` with upstream remote intact (`https://github.com/lnkiai/m3e-canvas.git`).
+- Forked repository to `blue8akash/m3e-canvas` (`origin`), with `upstream` pointing to `lnkiai/m3e-canvas.git`.
+- Pushed local onboarding commits and transcript documentation to `origin/main`.
 - Deployed Context-Matrix Agent Development Kit (ADK) v9 and linked to Context-Matrix.
