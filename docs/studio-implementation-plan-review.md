@@ -1,110 +1,67 @@
 # Review: Studio plans
 
-**Date:** 2026-09-20 (fourth plan — “de-chaotify”)  
-**Plan file:** `c:\Users\BlueSpace\.gemini\antigravity-ide\brain\1416cd13-2713-44f5-96d7-67b4ccc98f1a\implementation_plan.md`  
+**Date:** 2026-09-20  
+**Plan:** `c:\Users\BlueSpace\.gemini\antigravity-ide\brain\1416cd13-2713-44f5-96d7-67b4ccc98f1a\implementation_plan.md`  
 **Product:** `d:\MAJOR-NODES\PRODUCT-RD\Growth-Design-Engine\studio`  
+**Decks:** `Growth Design Case/Case Studies` · catalog + Labor Perception Bias HTML  
 **Background:** [studio-canvas-handoff.md](./studio-canvas-handoff.md) · [case-study-studio.md](./case-study-studio.md)
 
 ---
 
 ## Verdict
 
-**Yes — this is the right pass for “Studio feels chaotic.” Execute it, with one extra requirement.**
+**Yes. Execute this plan.** It matches the decks: lock + auto-animate, fragments stay on beats, keyboard group stays one unit, room is not a block.
 
-The chaos is not the iframe anymore. Edit is `SlideCanvas`. The chaos is **too much UI at once**, and **beats that do not mean anything on the board**.
-
-Do inspector-by-selection, calm palette, named beats, hover.  
-**Also hide/show artboard pieces by beat.** A TopBar that says “Speech bubble appears” while the bubble is always visible is still chaotic.
-
-Do **not** bring back zoom-world, overlay, or Material purple.
+Fix the small nits below while building. Do not add `appearBeat` or `inheritFrom` back.
 
 ---
 
-## What is true in code today
+## What is right
 
-| Piece | State |
-|---|---|
-| Edit | `SlideCanvas.tsx` — grab the node |
-| Iframe in Edit | Gone from `Canvas.tsx` |
-| `CanvasOverlay.tsx` | Dead file. Do not mount it |
-| Inspector | Takes `selectedElement`, shows a **badge**, still dumps **all** slide fields (dialogue, screen, avatars, meter, beats, cover, outro…) |
-| Palette | Flat grid, subtitles like `§3 contained--iphone--portrait` |
-| TopBar beats | `BEAT 2 / 3` only. Prev/next still `postMessage` to a missing `iframeRef` |
-| `inspectAllActive` | TopBar only. Never reaches `SlideCanvas` |
-| SlideCanvas vs beats | Uses beat for tap x/y and dialogue **text**. Does not hide balloon/hand until that beat |
-| Selection | Purple box, fake corner dots |
-| `follow()` | Origin-based. Keep it |
-
-That matches the plan’s five chaos causes. The plan missed the sixth: **the artboard does not step.**
+- No second story clock. Stack = z-index, editor hide, lock. Beats = when pieces appear.
+- Phone carry = `phone_locked` + duplicate slide / copy to next. Compiler emits `data-locked="true"`. Same as locked HubSpot phone at ~474×0.
+- Stickers duplicate; kit pieces stay one-per-slide. Called out in the plan.
+- Dan and balloon stay separate. Cover keyboard stays one group.
+- Room stays on the section.
+- Default z stack (device 10 → stickers 12 → balloon 14 → tap 16 → HUD 18 → keys 20) matches typical `.sl-block-content` order.
+- Eye tooltip says editor-only. Good.
+- `npm run build` + live checks, not old overlay Python gates.
 
 ---
 
-## What to build (from the plan)
+## Nits (handle in the same pass)
 
-### 1. Context inspector — required
+1. **Two lock flags.** `slide.phone_locked` and `stack[].locked` for the same phone. Pick one write path: Inspector “Lock Position” sets **both**, or only `phone_locked` and stack reads it. Otherwise drag lock and compiler drift.
 
-`Inspector.tsx` already knows `selectedElement`. Stop showing everything.
+2. **Copy device onto Cover.** “Copy Device to Next Slide” must **skip** cover/outro (or warn). A locked phone on a cover is not a Growth.Design cover.
 
-| Selection | Panel |
-|---|---|
-| `bubble` | Dialogue, X/Y, W/H, tail |
-| `avatar` | Emotion picker, X/Y |
-| `phone` / `laptop` | Screen image, X/Y (phone: center/left). **No W/H stretch on iPhone bezel** |
-| `meter` | On/off, level, beat delta, X/Y |
-| `tap` | `{tap}` / `{click}` text, X/Y |
-| `caption` | Text, X/Y, W/H |
-| `keyboard_group` | X/Y |
-| `null` | Slide overview + beat timeline only. Cover title, pro tip, outro live **here**, not on every selection |
+3. **Ctrl+A list.** Include `laptop` and `keyboard_group`. Plan only lists phone, bubble, avatar, tap, meter, caption, stickers.
 
-Add **Deselect**. Numeric X/Y must write the same fields drag writes (`bubble_left`, …).
+4. **`groupId` lives on the sticker.** Do not also require it on `SlideStackItem` unless the stack row is just a mirror. One source of truth: `SlideSticker.groupId`.
 
-Keep gold (`#14100b`, `#fbbf24`). Do not restyle as m3e purple.
+5. **First reorder writes `stack[]`.** Until the user changes z-order, derive from defaults. On first ▲/▼, persist a full `stack` for every piece on the slide so later compiles stay stable.
 
-### 2. Palette categories — required, cheap
+6. **Multi-select.** `SlideCanvas` already has optional `selectedElements`; `Board` still has a single `selectedElement`. Ctrl+C/V/D need Board to keep an **array**. Wire that when adding clipboard.
 
-Four groups, human subtitles (`iPhone 334×720 bezel`, not `§3 contained--…`). Same drop behavior. Do not change catalog kinds.
-
-### 3. TopBar beat label — required, not enough alone
-
-Show `BEAT 2 OF 3 • Speech bubble appears` from `beats[i].desc`.
-
-Also:
-
-- Pass `inspectAllActive` into `SlideCanvas`
-- Show pieces for this beat or earlier (unless Inspect All)
-- Swap `activeBeat.avatar` and meter variation
-- **Remove** `iframeRef` / `postToIframe` from `Board.tsx`
-
-### 4. Hover + real handles — yes, with limits
-
-Hover outline on unselected blocks. `grab` / `grabbing`.
-
-Resize **balloon and caption** only. Live W×H badge.  
-Do not resize the iPhone bezel. Do not paste m3e `SizeHandles.tsx` whole.
-
-### 5. Filmstrip badges — optional, fine
-
-`#1 COVER` etc., amber active ring, hover delete. Do not block 1–4.
+7. **Compiler.** V1 `data-locked` on phone/laptop is enough. Meter lock in HTML can wait. Put `z-index` on `.sl-block-content` (as the decks do), not only the outer wrapper.
 
 ---
 
-## What not to do
+## Do not do
 
-- Infinite camera / Space-pan world (previous plan). One 1280×720 slide.
-- Mount `CanvasOverlay` or an Edit iframe.
-- Copy m3e purple chrome.
-- Treat `validate_groups_pass.py` as proof this pass works. `npm run build` + the browser list below.
+- `layers.appearBeat` or `inheritFrom`
+- Glue Dan + balloon
+- Stretch iPhone bezel
+- Mount `CanvasOverlay` or an Edit iframe
+- Undo (`Ctrl+Z`) in this pass
 
 ---
 
 ## Done when
 
-On `http://localhost:5173/?deck=mini-my-test-case`:
+The plan’s own checks pass:
 
-1. Click balloon → right panel is **only** balloon. Click empty board → slide overview + beats. No wall of cover/outro fields while a phone is selected.
-2. Palette shows four groups with plain language, not `§9 hud__cursor--animated`.
-3. TopBar: `BEAT 2 OF 3 • Speech bubble appears`.
-4. On a phone slide, beat 0 does not show the tap hand if that hand belongs to a later beat. Inspect All shows all. Next-beat does **not** talk to an iframe.
-5. Hover a block: outline. Drag still follows. Balloon side handle changes width.
-
-If 1 and 4 fail, the studio is still chaotic.
+1. Ctrl+D on a post-it → new id at +20,+20; Present shows both.
+2. Lock phone → no drag; duplicate slide keeps coords; compiled HTML has `data-locked="true"` and `data-auto-animate`.
+3. Stack ▲/▼ changes paint order; beats still show/hide balloon vs tap.
+4. Cover keyboard still moves as one. Dan and balloon are not glued.
