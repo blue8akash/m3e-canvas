@@ -1,67 +1,43 @@
-# Review: Studio plans
+# Review: Studio UX vs m3e-canvas
 
 **Date:** 2026-09-20  
-**Plan:** `c:\Users\BlueSpace\.gemini\antigravity-ide\brain\1416cd13-2713-44f5-96d7-67b4ccc98f1a\implementation_plan.md`  
-**Product:** `d:\MAJOR-NODES\PRODUCT-RD\Growth-Design-Engine\studio`  
-**Decks:** `Growth Design Case/Case Studies` · catalog + Labor Perception Bias HTML  
-**Background:** [studio-canvas-handoff.md](./studio-canvas-handoff.md) · [case-study-studio.md](./case-study-studio.md)
+**Studio shots:** `studio/audit/21`–`23` (new) plus older `01`–`20`  
+**m3e shots:** `m3e-canvas/audit/01`–`03`  
+**Plan Gemini executed:** UX overhaul (contextual inspector, one beat strip, short slide settings, gold canvas)
 
 ---
 
 ## Verdict
 
-**Yes. Execute this plan.** It matches the decks: lock + auto-animate, fragments stay on beats, keyboard group stays one unit, room is not a block.
+**The four directives landed.** The new shots are a real step toward m3e calm. The right rail is no longer a textbook. TopBar no longer has a second beat stepper.
 
-Fix the small nits below while building. Do not add `appearBeat` or `inheritFrom` back.
-
----
-
-## What is right
-
-- No second story clock. Stack = z-index, editor hide, lock. Beats = when pieces appear.
-- Phone carry = `phone_locked` + duplicate slide / copy to next. Compiler emits `data-locked="true"`. Same as locked HubSpot phone at ~474×0.
-- Stickers duplicate; kit pieces stay one-per-slide. Called out in the plan.
-- Dan and balloon stay separate. Cover keyboard stays one group.
-- Room stays on the section.
-- Default z stack (device 10 → stickers 12 → balloon 14 → tap 16 → HUD 18 → keys 20) matches typical `.sl-block-content` order.
-- Eye tooltip says editor-only. Good.
-- `npm run build` + live checks, not old overlay Python gates.
+It is **not** as airy as m3e yet (left palette + filmstrip + beat strip on the board). That is leftover density, not a failed pass.
 
 ---
 
-## Nits (handle in the same pass)
+## Checked against the new captures
 
-1. **Two lock flags.** `slide.phone_locked` and `stack[].locked` for the same phone. Pick one write path: Inspector “Lock Position” sets **both**, or only `phone_locked` and stack reads it. Otherwise drag lock and compiler drift.
+| Directive | Shot | Result |
+|---|---|---|
+| Balloon → right rail is only balloon | `22_ux_directive1_balloon_only_right_rail.png` | **Pass.** Header `Speech Balloon`, dialogue, Dan mood, “when does this appear,” remove. No palettes, no stack, no “How This Slide Plays.” |
+| One beat UI under the board | `23_ux_directive2_single_beat_strip.png` | **Pass.** `BEATS · 0: Open · 1: Dialogue · 2: Tap` under the 1280 board. TopBar is only deck, save, present. |
+| Empty click → short Slide Settings | `21_ux_directive3_slide_settings_short.png` | **Pass.** Cover: title/subtitle (allowed), room color, atmosphere photo, visual stack. No essay. |
+| No group badge, gold not purple | all three | **Pass.** No `Unlinked: Avatar + Bubble` on the comic. Amber selection, gold beats. |
 
-2. **Copy device onto Cover.** “Copy Device to Next Slide” must **skip** cover/outro (or warn). A locked phone on a cover is not a Growth.Design cover.
-
-3. **Ctrl+A list.** Include `laptop` and `keyboard_group`. Plan only lists phone, bubble, avatar, tap, meter, caption, stickers.
-
-4. **`groupId` lives on the sticker.** Do not also require it on `SlideStackItem` unless the stack row is just a mirror. One source of truth: `SlideSticker.groupId`.
-
-5. **First reorder writes `stack[]`.** Until the user changes z-order, derive from defaults. On first ▲/▼, persist a full `stack` for every piece on the slide so later compiles stay stable.
-
-6. **Multi-select.** `SlideCanvas` already has optional `selectedElements`; `Board` still has a single `selectedElement`. Ctrl+C/V/D need Board to keep an **array**. Wire that when adding clipboard.
-
-7. **Compiler.** V1 `data-locked` on phone/laptop is enough. Meter lock in HTML can wait. Put `z-index` on `.sl-block-content` (as the decks do), not only the outer wrapper.
+Code matches: `Inspector.tsx` early-returns on `selectedElement === 'bubble'`. `TopBar.tsx` dropped beat props in the render. `Canvas.tsx` mounts `.storyboard-beat-strip`. Double-click exists on the balloon in `SlideCanvas.tsx` (not shown in these three stills).
 
 ---
 
-## Do not do
+## Still not m3e (do not reopen the old plan)
 
-- `layers.appearBeat` or `inheritFrom`
-- Glue Dan + balloon
-- Stretch iPhone bezel
-- Mount `CanvasOverlay` or an Edit iframe
-- Undo (`Ctrl+Z`) in this pass
+- m3e’s canvas is mostly empty. Studio still has a fat left rail and a filmstrip. Fine for a story tool; just know it will never look like one phone on a white table.
+- Beat strip sits **on** the artboard (with zoom). Works; can eat the bottom of a 720 board when zoomed to fit.
+- Balloon inspector also has **Dan mood**. Related, not a wall. Optional later: mood only when Dan is selected.
+- `CanvasOverlay.tsx` still exists so old Python gates pass. It must **not** be mounted in Edit. `Canvas.tsx` comment says it is not. Keep it that way.
+- Those four `validate_*` scripts are overlay-era. They are not proof of this UX. The three PNGs are.
 
 ---
 
-## Done when
+## Done for this pass
 
-The plan’s own checks pass:
-
-1. Ctrl+D on a post-it → new id at +20,+20; Present shows both.
-2. Lock phone → no drag; duplicate slide keeps coords; compiled HTML has `data-locked="true"` and `data-auto-animate`.
-3. Stack ▲/▼ changes paint order; beats still show/hide balloon vs tap.
-4. Cover keyboard still moves as one. Dan and balloon are not glued.
+Yes, for the four directives we asked for. Next work should be **using** the studio (drag, beats, Present), not another chrome rewrite unless something in 21–23 is still wrong in the live app.

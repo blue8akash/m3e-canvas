@@ -10,7 +10,7 @@ _What is the overarching goal of this repository?_
 
 ## 2. Current Focus
 _What is Co-Ma (or the local agent) actively building or refactoring right now?_
-- Studio lock-carry / stack plan: execute with nits. Review: `docs/studio-implementation-plan-review.md`. This repo is still the M3E screen editor.
+- Sidebar/controller proposal: borrow pills/search/emotion popover; do not add a left Beats app or a third beat clock. Critique: `docs/studio-sidebars-controllers-review.md`.
 
 ## 3. Active Blockers
 _What is stopping progress? What dependencies are missing?_
