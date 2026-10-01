@@ -1,15 +1,12 @@
-# Git Process
+# Git Push
 
 When the user tags this file, you must execute the following standard git workflow for the current repository:
 
 0. **Register Current Status (before any git commands):**
-   Follow the full agent procedure defined in `Current_Status/README.md`:
+   Follow the agent procedure defined in `Current_Status/README.md`:
    - Compute the next filename (`YYYY-MM-DD.N_<slug>.md`) by scanning `Current_Status/`.
-   - Gather state from trackers, `.agents/LOCAL_CONTEXT.md`, `.agents/SESSION.md`, and this session's work.
+   - Gather state from trackers and this session's work.
    - Fill the template and write the snapshot to `Current_Status/`.
-   - Reconcile live memory (LOCAL_CONTEXT, SESSION, GLOBAL_MEMORY if needed).
-   - Run `python D:\Context-Matrix\batch_tools\generate_timeline.py` (if it exists).
-   - Run `python D:\Context-Matrix\batch_tools\aggregate_coma_brain.py`.
    - Report the snapshot filename before proceeding to git steps.
 
 1. **Check Status**: Run `git status` to see what has changed.
